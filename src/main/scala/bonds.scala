@@ -1,16 +1,15 @@
 import scala.math.pow
 
-import scala.collection.mutable.ArrayBuffer
-
 import org.apache.spark.sql._
 import org.apache.spark.sql.types.StructType
 import org.apache.spark.sql.types.StructField
 import org.apache.spark.sql.types.StringType
 import org.apache.spark.sql.types.DecimalType
 import org.apache.spark.sql.types.IntegerType
-import org.apache.spark.sql.types.ArrayType
 
 import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.functions.explode
+
 
 object bonds {
   def main(args: Array[String]): Unit = {
@@ -60,20 +59,17 @@ object bonds {
 
     val udf_calc_periodic_value = udf(map_calc_periodic_value, periodic_value_schema)
 
-    bonds_cast_df.withColumn("periodic_value", udf_calc_periodic_value(bonds_cast_df["value"], bonds_cast_df["coupon"],
-    bonds_cast_df["yield"], bonds_cast_df["type"],
-    bonds_cast_df["duration"]))\
-      .withColumn("periodic_value", explode("periodic_value"))\
-    .select("id", "value", "periodic_value.period", "periodic_value.cp", "periodic_value.pv", "periodic_value.aggpv",
-      "periodic_value.quote")\
-    .createOrReplaceTempView("periodic_value_table")
+    bonds_cast_df.withColumn("periodic_value",
+      udf_calc_periodic_value(bonds_cast_df("value"), bonds_cast_df("coupon"), bonds_cast_df("yield"),
+        bonds_cast_df("type"), bonds_cast_df("duration")))
+      .withColumn("periodic_value", explode(bonds_cast_df("periodic_value")))
+      .select("id", "value", "periodic_value.period", "periodic_value.cp", "periodic_value.pv", "periodic_value.aggpv",
+      "periodic_value.quote")
+      .createOrReplaceTempView("periodic_value_table")
 
-    spark.sql("select id as `Bond ID`, period as `Period`, cp as `Coupon payment`, pv as `PV of periodic payments`, "
-    "aggpv as A from periodic_value_table").show(50)
+    spark.sql("select id as `Bond ID`, period as `Period`, cp as `Coupon payment`, pv as `PV of periodic payments`, aggpv as A from periodic_value_table").show(50)
 
-    spark.sql("select id as `Bond ID`, aggpv as A, value as `FV`, quote as `Quote` "
-    "from periodic_value_table where NOT aggpv = '0.00000'").show()
-
+    spark.sql("select id as `Bond ID`, aggpv as A, value as `FV`, quote as `Quote` from periodic_value_table where NOT aggpv = '0.00000'").show()
 
     spark.stop()
   }
@@ -108,7 +104,7 @@ object bonds {
         aList:+ c
         aList:+ pv
         aList:+ tpv
-        aList:+ (tpv/vvalue)
+        aList:+ (tpv / vvalue)
       } else {
         val pv = (vvalue / pow(1 + ((vyield*100)/type_val), x+1)) + (c / pow(1 + ((vyield*100)/type_val), x+1))
         tpv += pv
