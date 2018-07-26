@@ -1,4 +1,0 @@
-[0m[[0m[31merror[0m] [0m[0m/home/srini/IdeaProjects/simple_bonds/src/main/scala/bonds.scala:58:29: value ::: is not a member of org.apache.spark.sql.Column[0m
-[0m[[0m[31merror[0m] [0m[0m    val ip_listn = ip_list1 ::: ip_list2[0m
-[0m[[0m[31merror[0m] [0m[0m                            ^[0m
-[0m[[0m[31merror[0m] [0m[0mone error found[0m
