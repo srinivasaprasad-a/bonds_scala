@@ -1,0 +1,6 @@
+[
+  {"id" : "xr2", "value" : "10000.0", "coupon" : "0.02", "yield" : "0.03" , "type" : "S", "duration": "5"},
+  {"id" : "ar5", "value" : "50000.0", "coupon" : "0.0279", "yield" : "0.025" , "type" : "A", "duration": "7"},
+  {"id" : "lr3", "value" : "250000.0", "coupon" : "0.06", "yield" : "0.065" , "type" : "Q", "duration": "30"},
+  {"id" : "kn7", "value" : "25000.0", "coupon" : "0.04", "yield" : "0.04" , "type" : "M", "duration": "5"}
+]
